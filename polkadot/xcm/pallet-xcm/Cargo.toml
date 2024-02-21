@@ -29,6 +29,7 @@ xcm-builder = { package = "staging-xcm-builder", path = "../xcm-builder", defaul
 
 # marked optional, used in benchmarking
 frame-benchmarking = { path = "../../../substrate/frame/benchmarking", default-features = false, optional = true }
+pallet-xcm-benchmarks = { path = "../pallet-xcm-benchmarks", default-features = false, optional = true }
 pallet-balances = { path = "../../../substrate/frame/balances", default-features = false, optional = true }
 
 [dev-dependencies]
@@ -58,6 +59,7 @@ std = [
 ]
 runtime-benchmarks = [
 	"frame-benchmarking/runtime-benchmarks",
+	"pallet-xcm-benchmarks/runtime-benchmarks",
 	"frame-support/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
 	"pallet-assets/runtime-benchmarks",

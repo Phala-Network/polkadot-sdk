@@ -746,11 +746,48 @@ impl_runtime_apis! {
 						dest
 					)
 				}
+			}
 
-				fn get_valid_asset() -> Asset {
+			parameter_types! {
+				pub const TrustedTeleporter: Option<(Location, Asset)> = None;
+				pub const TrustedReserve: Option<(Location, Asset)> = None;
+				pub const CheckedAccount: Option<(AccountId, xcm_builder::MintLocation)> = None;
+				pub ExistentialDepositAsset: Option<Asset> = Some((
+					xcm_config::RelayLocation::get(),
+					EXISTENTIAL_DEPOSIT,
+				).into());
+			}
+
+			impl pallet_xcm_benchmarks::Config for Runtime {
+				type XcmConfig = xcm_config::XcmConfig;
+				type AccountIdConverter = xcm_config::LocationToAccountId;
+				type DeliveryHelper = cumulus_primitives_utility::ToParentDeliveryHelper<
+					xcm_config::XcmConfig,
+					ExistentialDepositAsset,
+					xcm_config::PriceForParentDelivery,
+				>;
+				fn valid_destination() -> Result<Location, BenchmarkError> {
+					Ok(xcm_config::RelayLocation::get())
+				}
+				fn worst_case_holding(_depositable_count: u32) -> Assets {
+					// Rococo contracts only knows about ROC
+					vec![Asset{
+						id: AssetId(xcm_config::RelayLocation::get()),
+						fun: Fungible(1_000_000 * UNITS),
+					}].into()
+				}
+			}
+
+			impl pallet_xcm_benchmarks::fungible::Config for Runtime {
+				type TransactAsset = Balances;
+				type TrustedTeleporter = TrustedTeleporter;
+				type TrustedReserve = TrustedReserve;
+				type CheckedAccount = CheckedAccount;
+
+				fn get_asset() -> Asset {
 					Asset {
 						id: AssetId(Location::parent()),
-						fun: Fungible(EXISTENTIAL_DEPOSIT),
+						fun: Fungible(UNITS),
 					}
 				}
 			}

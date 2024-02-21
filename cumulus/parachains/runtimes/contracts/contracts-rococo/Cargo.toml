@@ -57,6 +57,7 @@ pallet-contracts = { path = "../../../../../substrate/frame/contracts", default-
 
 # Polkadot
 pallet-xcm = { path = "../../../../../polkadot/xcm/pallet-xcm", default-features = false }
+pallet-xcm-benchmarks = { path = "../../../../../polkadot/xcm/pallet-xcm-benchmarks", default-features = false, optional = true }
 polkadot-parachain-primitives = { path = "../../../../../polkadot/parachain", default-features = false }
 polkadot-runtime-common = { path = "../../../../../polkadot/runtime/common", default-features = false }
 rococo-runtime-constants = { path = "../../../../../polkadot/runtime/rococo/constants", default-features = false }
@@ -138,6 +139,7 @@ std = [
 	"xcm-builder/std",
 	"xcm-executor/std",
 	"xcm/std",
+	"pallet-xcm-benchmarks/std",
 ]
 
 runtime-benchmarks = [
@@ -166,6 +168,7 @@ runtime-benchmarks = [
 	"sp-runtime/runtime-benchmarks",
 	"xcm-builder/runtime-benchmarks",
 	"xcm-executor/runtime-benchmarks",
+	"pallet-xcm-benchmarks/runtime-benchmarks",
 ]
 
 try-runtime = [

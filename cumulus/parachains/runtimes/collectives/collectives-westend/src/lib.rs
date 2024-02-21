@@ -309,42 +309,42 @@ impl InstanceFilter<RuntimeCall> for ProxyType {
 			ProxyType::NonTransfer => !matches!(c, RuntimeCall::Balances { .. }),
 			ProxyType::CancelProxy => matches!(
 				c,
-				RuntimeCall::Proxy(pallet_proxy::Call::reject_announcement { .. }) |
-					RuntimeCall::Utility { .. } |
-					RuntimeCall::Multisig { .. }
+				RuntimeCall::Proxy(pallet_proxy::Call::reject_announcement { .. })
+					| RuntimeCall::Utility { .. }
+					| RuntimeCall::Multisig { .. }
 			),
 			ProxyType::Collator => matches!(
 				c,
-				RuntimeCall::CollatorSelection { .. } |
-					RuntimeCall::Utility { .. } |
-					RuntimeCall::Multisig { .. }
+				RuntimeCall::CollatorSelection { .. }
+					| RuntimeCall::Utility { .. }
+					| RuntimeCall::Multisig { .. }
 			),
 			ProxyType::Alliance => matches!(
 				c,
-				RuntimeCall::AllianceMotion { .. } |
-					RuntimeCall::Alliance { .. } |
-					RuntimeCall::Utility { .. } |
-					RuntimeCall::Multisig { .. }
+				RuntimeCall::AllianceMotion { .. }
+					| RuntimeCall::Alliance { .. }
+					| RuntimeCall::Utility { .. }
+					| RuntimeCall::Multisig { .. }
 			),
 			ProxyType::Fellowship => matches!(
 				c,
-				RuntimeCall::FellowshipCollective { .. } |
-					RuntimeCall::FellowshipReferenda { .. } |
-					RuntimeCall::FellowshipCore { .. } |
-					RuntimeCall::FellowshipSalary { .. } |
-					RuntimeCall::FellowshipTreasury { .. } |
-					RuntimeCall::Utility { .. } |
-					RuntimeCall::Multisig { .. }
+				RuntimeCall::FellowshipCollective { .. }
+					| RuntimeCall::FellowshipReferenda { .. }
+					| RuntimeCall::FellowshipCore { .. }
+					| RuntimeCall::FellowshipSalary { .. }
+					| RuntimeCall::FellowshipTreasury { .. }
+					| RuntimeCall::Utility { .. }
+					| RuntimeCall::Multisig { .. }
 			),
 			ProxyType::Ambassador => matches!(
 				c,
-				RuntimeCall::AmbassadorCollective { .. } |
-					RuntimeCall::AmbassadorReferenda { .. } |
-					RuntimeCall::AmbassadorContent { .. } |
-					RuntimeCall::AmbassadorCore { .. } |
-					RuntimeCall::AmbassadorSalary { .. } |
-					RuntimeCall::Utility { .. } |
-					RuntimeCall::Multisig { .. }
+				RuntimeCall::AmbassadorCollective { .. }
+					| RuntimeCall::AmbassadorReferenda { .. }
+					| RuntimeCall::AmbassadorContent { .. }
+					| RuntimeCall::AmbassadorCore { .. }
+					| RuntimeCall::AmbassadorSalary { .. }
+					| RuntimeCall::Utility { .. }
+					| RuntimeCall::Multisig { .. }
 			),
 		}
 	}
@@ -1019,11 +1019,48 @@ impl_runtime_apis! {
 						dest
 					)
 				}
+			}
 
-				fn get_valid_asset() -> Asset {
+			parameter_types! {
+				pub const TrustedTeleporter: Option<(Location, Asset)> = None;
+				pub const TrustedReserve: Option<(Location, Asset)> = None;
+				pub const CheckedAccount: Option<(AccountId, xcm_builder::MintLocation)> = None;
+				pub ExistentialDepositAsset: Option<Asset> = Some((
+					xcm_config::WndLocation::get(),
+					EXISTENTIAL_DEPOSIT,
+				).into());
+			}
+
+			impl pallet_xcm_benchmarks::Config for Runtime {
+				type XcmConfig = xcm_config::XcmConfig;
+				type AccountIdConverter = xcm_config::LocationToAccountId;
+				type DeliveryHelper = cumulus_primitives_utility::ToParentDeliveryHelper<
+					xcm_config::XcmConfig,
+					ExistentialDepositAsset,
+					xcm_config::PriceForParentDelivery,
+				>;
+				fn valid_destination() -> Result<Location, BenchmarkError> {
+					Ok(xcm_config::WndLocation::get())
+				}
+				fn worst_case_holding(_depositable_count: u32) -> Assets {
+					// Rococo contracts only knows about ROC
+					vec![Asset{
+						id: AssetId(xcm_config::WndLocation::get()),
+						fun: Fungible(1_000_000 * UNITS),
+					}].into()
+				}
+			}
+
+			impl pallet_xcm_benchmarks::fungible::Config for Runtime {
+				type TransactAsset = Balances;
+				type TrustedTeleporter = TrustedTeleporter;
+				type TrustedReserve = TrustedReserve;
+				type CheckedAccount = CheckedAccount;
+
+				fn get_asset() -> Asset {
 					Asset {
 						id: AssetId(Location::parent()),
-						fun: Fungible(ExistentialDeposit::get()),
+						fun: Fungible(UNITS),
 					}
 				}
 			}

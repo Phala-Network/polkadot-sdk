@@ -725,13 +725,6 @@ impl_runtime_apis! {
 					// Reserve transfers are disabled
 					None
 				}
-
-				fn get_valid_asset() -> Asset {
-					Asset {
-						id: AssetId(Location::parent()),
-						fun: Fungible(ExistentialDeposit::get()),
-					}
-				}
 			}
 
 			parameter_types! {
