@@ -15,6 +15,7 @@
 // along with Polkadot.  If not, see <http://www.gnu.org/licenses/>.
 
 use codec::Encode;
+use frame_benchmarking::{BenchmarkError, BenchmarkResult};
 use frame_support::{
 	construct_runtime, derive_impl, parameter_types,
 	traits::{
@@ -561,6 +562,45 @@ impl pallet_test_notifier::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type RuntimeOrigin = RuntimeOrigin;
 	type RuntimeCall = RuntimeCall;
+}
+
+parameter_types! {
+	pub ExistentialDepositAsset: Option<Asset> = Some((
+		RelayLocation::get(),
+		ExistentialDeposit::get()
+	).into());
+}
+
+#[cfg(feature = "runtime-benchmarks")]
+impl pallet_xcm_benchmarks::Config for Test {
+	type XcmConfig = XcmConfig;
+	type AccountIdConverter = SovereignAccountOf;
+	type DeliveryHelper = ();
+	fn valid_destination() -> Result<Location, BenchmarkError> {
+		Err(BenchmarkError::Override(BenchmarkResult::from_weight(Weight::MAX)))
+	}
+	fn worst_case_holding(_depositable_count: u32) -> Assets {
+		vec![Asset { id: AssetId(RelayLocation::get()), fun: Fungible(1_000_000) }].into()
+	}
+}
+
+parameter_types! {
+	pub const TrustedTeleporter: Option<(Location, Asset)> = None;
+	pub const TrustedReserve: Option<(Location, Asset)> = None;
+	pub const CheckedAccount: Option<(AccountId, xcm_builder::MintLocation)> = None;
+}
+
+#[cfg(feature = "runtime-benchmarks")]
+impl pallet_xcm_benchmarks::fungible::Config for Test {
+	type TransactAsset = Balances;
+
+	type CheckedAccount = CheckedAccount;
+	type TrustedTeleporter = TrustedTeleporter;
+	type TrustedReserve = TrustedReserve;
+
+	fn get_asset() -> Asset {
+		Asset { id: AssetId(RelayLocation::get()), fun: Fungible(1_000_000) }
+	}
 }
 
 #[cfg(feature = "runtime-benchmarks")]
