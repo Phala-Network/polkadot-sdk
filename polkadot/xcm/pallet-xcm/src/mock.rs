@@ -15,7 +15,6 @@
 // along with Polkadot.  If not, see <http://www.gnu.org/licenses/>.
 
 use codec::Encode;
-use frame_benchmarking::{BenchmarkError, BenchmarkResult};
 use frame_support::{
 	construct_runtime, derive_impl, parameter_types,
 	traits::{
@@ -43,6 +42,9 @@ use xcm_executor::{
 	traits::{Identity, JustTry},
 	XcmExecutor,
 };
+
+#[cfg(feature = "runtime-benchmarks")]
+use frame_benchmarking::{BenchmarkError, BenchmarkResult};
 
 use crate::{self as pallet_xcm, TestWeightInfo};
 
