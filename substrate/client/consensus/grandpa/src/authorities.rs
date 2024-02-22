@@ -723,7 +723,7 @@ impl<N: Ord + Clone> AuthoritySetChanges<N> {
 			.0
 			.last()
 			.map(|last_auth_change| last_auth_change.1 < block_number)
-			.unwrap_or(false)
+			.unwrap_or(true)
 		{
 			return AuthoritySetChangeId::Latest
 		}
